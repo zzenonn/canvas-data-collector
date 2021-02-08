@@ -21,7 +21,7 @@ def dequeue(queue_url):
         AttributeNames=[
             'SentTimestamp'
         ],
-        MaxNumberOfMessages=10,
+        MaxNumberOfMessages=10, # Polls 10 messages at a time from the queue
         MessageAttributeNames=[
             'All'
         ],
@@ -29,31 +29,29 @@ def dequeue(queue_url):
         WaitTimeSeconds=20
     )
 
+    # Loops messages received
     for message in response['Messages']:
         messages.append(json.loads(message['Body']))
         receipt_handles.append(message['ReceiptHandle'])
         
-    # message = response['Messages'][0]
-    # receipt_handle = message['ReceiptHandle']
-
-    # Delete received message from queue. Uncomment when ready for prod
+    # Delete received message from queue. Uncomment when ready for prod/server deployment
 #    for receipt_handle in receipt_handles:
 #        sqs.delete_message(
 #            QueueUrl=queue_url,
 #            ReceiptHandle=receipt_handle
 #        )
 
+    # Return list to easily convert to JSON array
     return messages
 
 if __name__ == "__main__":
     data = []
+
+    # Reduces cost by looping only a finite number of times an hour
     for i in range(5000):
-        # if i % 10 == 0:
-        # 	print(i, file=sys.stderr)
-    # while(True):
         try:
             data.extend(dequeue(sys.argv[1]))
         except KeyError:
             print('No messages on the queue!', file=sys.stderr)
-    print(json.dumps(data))
+    print(json.dumps(data)) # Prints a valid JSON array
 
