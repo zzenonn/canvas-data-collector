@@ -76,7 +76,7 @@ def dequeue(queue_url):
     return messages, receipt_handles
 
 if __name__ == "__main__":
-    num_messages = 10
+    num_messages = 8000
     queue_url = sys.argv[1]
     for i in range(num_messages):
         try:
