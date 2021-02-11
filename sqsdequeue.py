@@ -4,12 +4,44 @@ import boto3
 import sys
 import json
 import signal
+from flatten_json import flatten
+from hashlib import sha512
 
 # Create SQS client
-sqs = boto3.client('sqs',
-                   aws_access_key_id='xxx',
-                   aws_secret_access_key='xxx'
-        )
+sqs = boto3.client('sqs' )
+
+
+def anonymize_data(json_data_flat, cols):
+    def get_sha(s):
+        return sha512(str.encode(s)).hexdigest()
+
+    for col in cols:
+        try:
+            json_data_flat[col] = get_sha(str(json_data_flat[col]))
+        except(KeyError):
+            continue
+
+    return json_data_flat
+
+
+def get_event_specific_sensitive_columns(event_name):
+    sensitive_columns = {
+        'logged_in': ['body_redirect_url'],
+        'context_external_tool': ['body_url'],
+        'course_progress': ['body_user_name', 'body_user_email', 'body_progress_next_requirement_url']
+    }
+
+    try:
+        return sensitive_columns[event_name]
+    except(KeyError):
+        return []
+
+
+def anonymize_canvas_data(json_data):
+    json_data_flat = flatten(json_data)
+    json_data_anon = anonymize_data(json_data_flat, ['metadata_user_login', 'metadata_hostname', 'metadata_client_ip', 'metadata_url', 'metadata_referrer', 'metadata_context_sis_source_id'] + get_event_specific_sensitive_columns(json_data_flat['metadata_event_name']))
+    return json_data_anon
+
 
 def dequeue(queue_url):
     # Receive message from SQS queue
@@ -21,7 +53,7 @@ def dequeue(queue_url):
         AttributeNames=[
             'SentTimestamp'
         ],
-        MaxNumberOfMessages=10, # Polls 10 messages at a time from the queue
+        MaxNumberOfMessages=10,
         MessageAttributeNames=[
             'All'
         ],
@@ -29,29 +61,33 @@ def dequeue(queue_url):
         WaitTimeSeconds=20
     )
 
-    # Loops messages received
     for message in response['Messages']:
-        messages.append(json.loads(message['Body']))
+        anonymized_message = anonymize_canvas_data(json.loads(message['Body']))
+        messages.append(anonymized_message)
         receipt_handles.append(message['ReceiptHandle'])
-        
-    # Delete received message from queue. Uncomment when ready for prod/server deployment
-#    for receipt_handle in receipt_handles:
-#        sqs.delete_message(
-#            QueueUrl=queue_url,
-#            ReceiptHandle=receipt_handle
-#        )
 
-    # Return list to easily convert to JSON array
-    return messages
+    # Delete received message from queue
+    for receipt_handle in receipt_handles:
+        sqs.delete_message(
+            QueueUrl=queue_url,
+            ReceiptHandle=receipt_handle
+        )
+
+    return messages, receipt_handles
 
 if __name__ == "__main__":
-    data = []
-
-    # Reduces cost by looping only a finite number of times an hour
-    for i in range(5000):
+    num_messages = 10
+    queue_url = sys.argv[1]
+    for i in range(num_messages):
         try:
-            data.extend(dequeue(sys.argv[1]))
+            messages, receipts = dequeue(queue_url)
+            for message in messages:
+                print (message)
+            for receipt in receipts:
+                sqs.delete_message(
+                    QueueUrl=queue_url,
+                    ReceiptHandle=receipt
+                )
         except KeyError:
             print('No messages on the queue!', file=sys.stderr)
-    print(json.dumps(data)) # Prints a valid JSON array
 
