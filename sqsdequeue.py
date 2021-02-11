@@ -76,13 +76,13 @@ def dequeue(queue_url):
     return messages, receipt_handles
 
 if __name__ == "__main__":
-    num_messages = 8000
+    num_messages = 8000 
     queue_url = sys.argv[1]
     for i in range(num_messages):
         try:
             messages, receipts = dequeue(queue_url)
             for message in messages:
-                print (message)
+                print (json.dumps(message))
             for receipt in receipts:
                 sqs.delete_message(
                     QueueUrl=queue_url,
