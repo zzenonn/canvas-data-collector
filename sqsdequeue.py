@@ -27,9 +27,15 @@ def anonymize_data(json_data_flat, cols):
 def get_event_specific_sensitive_columns(event_name):
     sensitive_columns = {
         'logged_in': ['body_redirect_url'],
-        'context_external_tool': ['body_url'],
+        'asset_accessed': ['body_url'],
         'course_progress': ['body_user_name', 'body_user_email', 'body_progress_next_requirement_url'],
-        'course_completed': ['body_user_name', 'body_user_email', 'body_progress_next_requirement_url']
+        'course_completed': ['body_user_name', 'body_user_email', 'body_progress_next_requirement_url'],
+        'enrollment_created': ['body_user_name'],
+        'enrollment_updated': ['body_user_name'],
+        'submission_created': ['body_url'],
+        'submission_updated': ['body_url'],
+        'user_created': ['body_name', 'body_short_name', 'body_user_login'],
+        'user_updated': ['body_name', 'body_short_name', 'body_user_login']
     }
 
     try:
