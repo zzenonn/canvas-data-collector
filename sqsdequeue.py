@@ -28,7 +28,8 @@ def get_event_specific_sensitive_columns(event_name):
     sensitive_columns = {
         'logged_in': ['body_redirect_url'],
         'context_external_tool': ['body_url'],
-        'course_progress': ['body_user_name', 'body_user_email', 'body_progress_next_requirement_url']
+        'course_progress': ['body_user_name', 'body_user_email', 'body_progress_next_requirement_url'],
+        'course_completed': ['body_user_name', 'body_user_email', 'body_progress_next_requirement_url']
     }
 
     try:
@@ -90,4 +91,3 @@ if __name__ == "__main__":
                 )
         except KeyError:
             print('No messages on the queue!', file=sys.stderr)
-
