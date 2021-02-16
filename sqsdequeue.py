@@ -35,7 +35,8 @@ def get_event_specific_sensitive_columns(event_name):
         'submission_created': ['body_url'],
         'submission_updated': ['body_url'],
         'user_created': ['body_name', 'body_short_name', 'body_user_login'],
-        'user_updated': ['body_name', 'body_short_name', 'body_user_login']
+        'user_updated': ['body_name', 'body_short_name', 'body_user_login'],
+        'plagiarism_resubmit': ['body_url']
     }
 
     try:
