@@ -6,6 +6,7 @@ import json
 import signal
 from flatten_json import flatten
 from hashlib import sha512
+import pandas as pd
 
 # Create SQS client
 sqs = boto3.client('sqs' )
@@ -89,7 +90,8 @@ if __name__ == "__main__":
         try:
             messages, receipts = dequeue(queue_url)
             for message in messages:
-                print (json.dumps(message))
+                df = pd.DataFrame([json.dumps(message)])
+                df.to_csv(sys.argv[2], mode = 'a', header = False, index = False)
             for receipt in receipts:
                 sqs.delete_message(
                     QueueUrl=queue_url,
