@@ -10,4 +10,4 @@ To run
 4. Run `python sqsdequeue.py "<queue url>"`.
 
 ## Shell Script for server
-Run `run.sh`
+Run `run.sh` in a while(true) loop.
