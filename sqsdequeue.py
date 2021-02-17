@@ -4,6 +4,8 @@ import boto3
 import sys
 import json
 import signal
+import time
+
 from flatten_json import flatten
 from hashlib import sha512
 
@@ -86,6 +88,7 @@ def dequeue(queue_url):
 if __name__ == "__main__":
     num_messages = 8000 
     queue_url = sys.argv[1]
+    interval_min = 10
     for i in range(num_messages):
         try:
             messages, receipts = dequeue(queue_url)
@@ -98,3 +101,5 @@ if __name__ == "__main__":
                 )
         except KeyError:
             print('No messages on the queue!', file=sys.stderr)
+            
+    time.sleep(interval_min * 60)
