@@ -90,8 +90,7 @@ if __name__ == "__main__":
         try:
             messages, receipts = dequeue(queue_url)
             for message in messages:
-                df = pd.DataFrame([json.dumps(message)])
-                df.to_csv(sys.argv[2], mode = 'a', header = False, index = False)
+                print (json.dumps(message))
             for receipt in receipts:
                 sqs.delete_message(
                     QueueUrl=queue_url,
