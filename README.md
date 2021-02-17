@@ -9,8 +9,5 @@ To run
 3. Run `pip install -r requirements.txt` to install dependencies
 4. Run `python sqsdequeue.py "<queue url>"`.
 
-## Cronjob (for server)
-Cronjob is as follows:
-```
-*/60 * * * * sh -c "(test -d /home/<user>/canvas/data/$(date +\%F) || mkdir -p /home/<user>/canvas/data/$(date +\%F)) && /home/<user>/canvas/sqsdequeue.py "<queue url>" | ifne tee /home/<user>/canvas/data/$(date +\%F)/$(date +\%H-\%M-\%S).json > /dev/null && rclone copy /home/<user>/canvas/data/ gdrive: && rm -r /home/<user>/canvas/data/*"
-```
+## Shell Script for server
+Run `run.sh`
