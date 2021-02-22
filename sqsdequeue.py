@@ -37,6 +37,8 @@ def get_event_specific_sensitive_columns(event_name):
         'course_completed': ['body_user_name', 'body_user_email', 'body_progress_next_requirement_url', 'body_course_sis_source_id'],
         'course_section_created': ['body_sis_source_id'],
         'course_section_updated': ['body_sis_source_id'],
+        'assignment_group_created': ['body_sis_source_id'],
+        'assignment_group_updated': ['body_sis_source_id'],
         'enrollment_created': ['body_user_name'],
         'enrollment_updated': ['body_user_name'],
         'submission_created': ['body_url'],
