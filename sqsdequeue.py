@@ -10,6 +10,7 @@ from flatten_json import flatten
 from hashlib import sha512
 from bs4 import BeautifulSoup
 import unicodedata
+import warnings
 
 # Create SQS client
 sqs = boto3.client('sqs' )
@@ -27,6 +28,7 @@ def anonymize_data(json_data_flat, cols):
     return json_data_flat
 
 def anonymize_html_data(json_data_flat, cols):
+    warnings.filterwarnings("ignore", module='bs4')
     for col in cols:
         try:
             html_data = unicodedata.normalize("NFKD", BeautifulSoup(json_data_flat[col], 'lxml').get_text(strip = True, separator = " "))
