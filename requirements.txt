@@ -4,7 +4,7 @@ botocore==1.20.3
 certifi==2020.12.5
 flatten-json==0.1.7
 jmespath==0.10.0
-lxml @ file:///opt/concourse/worker/volumes/live/0c49af63-83fd-4e70-550a-65ad2757eabb/volume/lxml_1606516849441/work
+lxml=4.6.2
 python-dateutil==2.8.1
 s3transfer==0.3.4
 six==1.15.0
