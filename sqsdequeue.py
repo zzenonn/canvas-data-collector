@@ -28,11 +28,17 @@ def anonymize_data(json_data_flat, cols):
     return json_data_flat
 
 def anonymize_html_data(json_data_flat, cols):
-    warnings.filterwarnings("ignore", module='bs4')
+    def html_to_string(html_data_raw):
+        warnings.filterwarnings("ignore", module='bs4')
+        html_data = BeautifulSoup(html_data_raw, 'lxml').get_text(strip = True, separator = " ")
+        html_data = unicodedata.normalize("NFKD", html_data)
+        html_data = html_data.replace("\n", " ")
+        html_data = html_data.replace("\t", " ")
+        return html_data
+    
     for col in cols:
         try:
-            html_data = unicodedata.normalize("NFKD", BeautifulSoup(json_data_flat[col], 'lxml').get_text(strip = True, separator = " "))
-            
+            html_data = html_to_string(json_data_flat[col])
             json_data_flat[col] = html_data
         except:
             continue
