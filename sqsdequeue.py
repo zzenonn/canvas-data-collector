@@ -75,6 +75,7 @@ def get_event_specific_sensitive_columns(event_name):
 def get_html_data_columns(event_name):
     html_data_columns = {
         'account_notification_created': ['body_message', 'body_subject'],
+        'asset_accessed': ['body_asset_name'],
         'assignment_created': ['body_description', 'body_title'], 
         'assignment_updated': ['body_description', 'body_title'],
         'attachment_created': ['body_display_name', 'body_filename'],
