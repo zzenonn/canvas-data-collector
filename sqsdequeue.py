@@ -11,6 +11,7 @@ from hashlib import sha512
 from bs4 import BeautifulSoup
 import unicodedata
 import warnings
+from urlextract import URLExtract
 
 # Create SQS client
 sqs = boto3.client('sqs' )
@@ -34,11 +35,19 @@ def anonymize_html_data(json_data_flat, cols):
         html_data = unicodedata.normalize("NFKD", html_data)
         html_data = html_data.replace("\n", " ")
         html_data = html_data.replace("\t", " ")
+        html_data = html_data.replace("\r", " ")
+        html_data = html_data.replace("\b", "")
+        return html_data
+    
+    def anonymize_urls(html_data):
+        for url in URLExtract(extract_email=True).gen_urls(html_data):
+            html_data = html_data.replace(str(url), get_sha(str(url)), 1)
         return html_data
     
     for col in cols:
         try:
             html_data = html_to_string(json_data_flat[col])
+            html_data = anonymize_urls(html_data)
             json_data_flat[col] = html_data
         except:
             continue
@@ -62,9 +71,10 @@ def get_event_specific_sensitive_columns(event_name):
         'enrollment_updated': ['body_user_name'],
         'submission_created': ['body_url'],
         'submission_updated': ['body_url'],
-        'user_created': ['body_name', 'body_short_name', 'body_user_login'],
-        'user_updated': ['body_name', 'body_short_name', 'body_user_login'],
-        'plagiarism_resubmit': ['body_url']
+        'user_created': ['body_name', 'body_short_name', 'body_user_login', 'body_user_sis_id'],
+        'user_updated': ['body_name', 'body_short_name', 'body_user_login', 'body_user_sis_id'],
+        'plagiarism_resubmit': ['body_url'],
+        'grade_change': ['body_student_sis_id']
     }
 
     try:
@@ -75,7 +85,7 @@ def get_event_specific_sensitive_columns(event_name):
 def get_html_data_columns(event_name):
     html_data_columns = {
         'account_notification_created': ['body_message', 'body_subject'],
-        'asset_accessed': ['body_asset_name'],
+        'asset_accessed': ['body_asset_name', 'body_display_name', 'body_filename'],
         'assignment_created': ['body_description', 'body_title'], 
         'assignment_updated': ['body_description', 'body_title'],
         'attachment_created': ['body_display_name', 'body_filename'],
@@ -109,7 +119,7 @@ def get_html_data_columns(event_name):
 
 def anonymize_canvas_data(json_data):
     json_data_flat = flatten(json_data)
-    json_data_anon = anonymize_data(json_data_flat, ['metadata_user_login', 'metadata_hostname', 'metadata_client_ip', 'metadata_url', 'metadata_referrer', 'metadata_context_sis_source_id'] + get_event_specific_sensitive_columns(json_data_flat['metadata_event_name']))
+    json_data_anon = anonymize_data(json_data_flat, ['metadata_user_login', 'metadata_hostname', 'metadata_client_ip', 'metadata_url', 'metadata_referrer', 'metadata_context_sis_source_id', 'metadata_user_sis_id'] + get_event_specific_sensitive_columns(json_data_flat['metadata_event_name']))
     return anonymize_html_data(json_data_anon, get_html_data_columns(json_data_anon['metadata_event_name']))
 
 
