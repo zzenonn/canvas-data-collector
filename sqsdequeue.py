@@ -12,6 +12,7 @@ from bs4 import BeautifulSoup
 import unicodedata
 import warnings
 from urlextract import URLExtract
+from phonenumbers import PhoneNumberMatcher
 
 # Create SQS client
 sqs = boto3.client('sqs' )
@@ -44,10 +45,16 @@ def anonymize_html_data(json_data_flat, cols):
             html_data = html_data.replace(str(url), get_sha(str(url)), 1)
         return html_data
     
+    def anonymize_phone_numbers(html_data):
+        for phone_number in PhoneNumberMatcher(html_data, 'PH'):
+            html_data = html_data.replace(str(phone_number.raw_string), get_sha(str(phone_number.raw_string)), 1)
+        return html_data
+    
     for col in cols:
         try:
             html_data = html_to_string(json_data_flat[col])
             html_data = anonymize_urls(html_data)
+            html_data = anonymize_phone_numbers(html_data)
             json_data_flat[col] = html_data
         except:
             continue
