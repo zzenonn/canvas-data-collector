@@ -165,7 +165,7 @@ def dequeue(queue_url):
 if __name__ == "__main__":
     num_messages = 8000 
     queue_url = sys.argv[1]
-    interval_min = 1
+    interval_min = 0
 
     print('Starting', file=sys.stderr)
     for i in range(num_messages):
