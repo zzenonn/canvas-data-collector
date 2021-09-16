@@ -153,17 +153,10 @@ def dequeue(queue_url):
         messages.append(anonymized_message)
         receipt_handles.append(message['ReceiptHandle'])
 
-    # Delete received message from queue
-    for receipt_handle in receipt_handles:
-        sqs.delete_message(
-            QueueUrl=queue_url,
-            ReceiptHandle=receipt_handle
-        )
-
     return messages, receipt_handles
 
 if __name__ == "__main__":
-    num_messages = 8000 
+    num_messages = 80 
     queue_url = sys.argv[1]
     interval_min = 0
 
@@ -173,11 +166,11 @@ if __name__ == "__main__":
             messages, receipts = dequeue(queue_url)
             for message in messages:
                 print (json.dumps(message))
-            for receipt in receipts:
-                sqs.delete_message(
-                    QueueUrl=queue_url,
-                    ReceiptHandle=receipt
-                )
+#            for receipt in receipts:
+#                sqs.delete_message(
+#                    QueueUrl=queue_url,
+#                    ReceiptHandle=receipt
+#                )
         except KeyError:
             print('No messages on the queue!', file=sys.stderr)
 
