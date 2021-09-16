@@ -153,13 +153,6 @@ def dequeue(queue_url):
         messages.append(anonymized_message)
         receipt_handles.append(message['ReceiptHandle'])
 
-    # Delete received message from queue
-    for receipt_handle in receipt_handles:
-        sqs.delete_message(
-            QueueUrl=queue_url,
-            ReceiptHandle=receipt_handle
-        )
-
     return messages, receipt_handles
 
 if __name__ == "__main__":
